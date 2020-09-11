@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <title>Delivery form</title>
+    <script
+      src="https://api-maps.yandex.ru/2.1/?apikey=332edfad-9388-4c59-8eee-afc6535486f1&lang=en_US"
+      type="text/javascript"
+    ></script>
+    <script>
+      ymaps.ready(function () {
+        let formMap = new ymaps.Map('form-map', {
+          center: [55.980565, 37.14808],
+          zoom: 13,
+          controls: [],
+        })
+        let pickupPointsInfo = {
+          pointOne: {
+            id: 'point-1',
+            coords: [55.984077, 37.142544],
+            address: 'Andreyevka, Zhilinskaya ulitsa, 1с1',
+          },
+          pointTwo: {
+            id: 'point-2',
+            coords: [55.976126, 37.15765],
+            address: 'Zelenograd, к1637с1',
+          },
+        }
+        let pickupPoints = new ymaps.GeoObjectCollection()
+
+        Object.keys(pickupPointsInfo).forEach(function (point) {
+          let placemark = new ymaps.Placemark(
+            pickupPointsInfo[point].coords,
+            {
+              hintContent: 'Select this pickup point',
+              balloonContent: pickupPointsInfo[point].address,
+            },
+            {
+              iconLayout: 'default#image',
+              iconImageHref: './static/img/map-point.png',
+              iconImageSize: [35, 42],
+              iconImageOffset: [-15, -42],
+            }
+          )
+          pickupPoints.add(placemark)
+
+          let input = document.getElementById(pickupPointsInfo[point].id)
+          let submitBtn = document.getElementById('submit-btn')
+
+          input.addEventListener('click', () => {
+            placemark.balloon.open()
+            formMap.setCenter(pickupPointsInfo[point].coords)
+          })
+          placemark.events.add('click', () => {
+            input.checked = true
+            submitBtn.disabled = false
+          })
+        })
+
+        if ('ontouchstart' in document) {
+          formMap.behaviors.disable('drag')
+        }
+
+        formMap.geoObjects.add(pickupPoints)
+      })
+    </script>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+  </body>
+</html>
